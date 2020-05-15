@@ -1,0 +1,51 @@
+box:
+ id: node
+# Build definition
+build:
+  # The steps that will be executed on build
+  steps:
+    - script:
+        code: |
+          echo "USERNAME is $USERNAME"
+          echo "Image is $IMAGE_ID"
+    - internal/docker-build:
+       image-name: $IMAGE_BASE
+       dockerfile: Dockerfile1
+
+    - internal/docker-push:
+           repository: $REPONAME
+           username: $USERNAME
+           password: $PASSWORD
+           image-name: $IMAGE_BASE
+           tag: $TAGNAME
+    - script:
+        code: |
+          export NODE_ENV='testing'
+          echo "Image is Pushed..."
+          echo "image pushed is $IMAGE_BASE"
+    - internal/docker-run:
+           name: $CNT_NAME
+           image: ${REPONAME}:${TAGNAME}
+           username: $USERNAME
+           password: $PASSWORD
+           port: 80
+    - script:
+         code: |
+           echo "Testing the container.."
+           echo "CONTAINER NAME is $CNT_NAME"
+           echo "Successfully Created and Pulled from Cloud"
+    - script:
+        name: Test the container that we started as a service
+        code: |
+            if curlOutput=`curl -s $CNT_NAME:80`; then
+                export expected=`echo $curlOutput|wc -c`
+                if [ $expected -eq 0 ]; then
+                    echo "Test failed container gave unexpected response: "
+                    exit 1
+                else
+                    echo "TestPassed : container gave expected response: " $curlOutput
+                fi
+            else
+                echo "Test failed: container did not respond"
+                exit 1
+            fi
