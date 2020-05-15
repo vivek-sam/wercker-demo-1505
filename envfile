@@ -1,5 +1,5 @@
 X_USERNAME=viveksam
-X_PASSWORD=VIVx1234%
+X_PASSWORD=
 X_REPONAME=viveksam/werckerdemo-1505
 X_TAGNAME="1505"
 X_CNT_NAME=test-wercker-container
